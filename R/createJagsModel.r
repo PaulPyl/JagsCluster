@@ -1,9 +1,9 @@
-createJagsModel <- function(Nsamples = 2, alpha = "dbeta(1, 1000)"){
+createJagsModel <- function(nSamples = 2){
   ret <- "model {
-  # Likelihood:
-  for( i in 1 : Nsnvs ) {
+# Likelihood:
+for( i in 1 : Nsnvs ) {
   clust[i] ~ dcat(cluster.weight[1:Nclust])"
-  for(i in seq(Nsamples)){
+  for(i in seq(nSamples)){
     ret <- c(ret, paste0("  count.", i , "[i] ~ dbin(snv.center.", i, "[i], coverage.", i, "[i])"))
     ret <- c(ret, paste0("  snv.center.", i , "[i] <- cluster.center.", i, "a[clust[i]]"))
   }
@@ -11,9 +11,9 @@ createJagsModel <- function(Nsamples = 2, alpha = "dbeta(1, 1000)"){
     ret,
     "}",
     "# Priors:
-    for ( clustIdx in 1 : Nclust ) {"
+for ( clustIdx in 1 : Nclust ) {"
   )
-  for(i in seq(Nsamples)){
+  for(i in seq(nSamples)){
     ret <- c(ret, paste0("  cluster.center.", i, "[clustIdx] ~ dunif(0, 1)"))
   }
   ret <- c(
