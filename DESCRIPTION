@@ -1,0 +1,14 @@
+Package: JagsCluster
+Type: Package
+Title: Empirical Bayesian modelling for SNV clusters using rjags
+Version: 0.1.1
+Date: 2017-06-19
+Author: Paul Theodor Pyl <paul.theodor.pyl@gmail.com>
+Maintainer: Paul Theodor Pyl <paul.theodor.pyl@gmail.com>
+Description: This package provides functions to create and run JAGS models for modelling clusters of SNVs in one or more samples using the rjags backend.
+License: GPL
+Import: rjags
+Depends: rjags
+Collate:
+  "createJagsModel.r"
+  "runJagsModel.r"
