@@ -20,6 +20,6 @@ runJagsModel <- function(input, model = createJagsModel(), Nclust = 10, shape1 =
   #Sampling
   res <- jags.samples(jags,
                       c('clust', 'cluster.weight', paste("cluster.center", seq(ncol(input$Support)), sep = ".") ),
-                      nSamples)
+                      nSample)
   res
 }
