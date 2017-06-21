@@ -3,10 +3,20 @@ clusterSamples <- function(input, Nclust = 10, nAdapt = 1000, nBurnIn = 2000, nS
   input$AF <- input$Support / input$Coverage
   input$AF[!is.finite(input$AF)] <- 0
   selectedSNVs <- rowSums(input$AF >= minAF) >= 1 & rowSums(input$Coverage >= minCov) >= 1
-  if(length(selectedSNVs) == 0){
+  if(sum(selectedSNVs) == 0){
     stop("No SNV calls passed filtering, consider revising criteria and check input.")
   }
-  input <- lapply(input, function(m) m[selectedSNVs,])
+  input <- lapply(input, function(m) m[selectedSNVs,,drop = FALSE])
+  if(sum(selectedSNVs) == 1){
+    message("Trivial case with only one SNV passing filter")
+    ret <- list(
+      "jags.result"    = NA,
+      "Modelling.Data" = input,
+      "Clusters"       = c(1)
+    )
+    names(ret$Clusters) <- rownames(input$Support)[1]
+    return(ret)
+  }
   if(length(selectedSNVs) > maxSNVs){
     message(paste0("Input too large (", length(selectedSNVs), " variant calls), subsamping to ", maxSNVs, " for modelling."))
     selectedSNVs <- sample(x = selectedSNVs, size = maxSNVs, replace = FALSE)
