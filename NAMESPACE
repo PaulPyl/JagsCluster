@@ -1,6 +1,8 @@
 exportPattern("^[[:alpha:]]+")
 exportMethods(
   "createJagsModel",
-  "runJagsModel"
+  "runJagsModel",
+  "verifyInput",
+  "clusterSamples"
 )
 import(rjags)

@@ -1,7 +1,7 @@
 Package: JagsCluster
 Type: Package
 Title: Empirical Bayesian modelling for SNV clusters using rjags
-Version: 0.1.1
+Version: 0.1.2
 Date: 2017-06-19
 Author: Paul Theodor Pyl <paul.theodor.pyl@gmail.com>
 Maintainer: Paul Theodor Pyl <paul.theodor.pyl@gmail.com>
@@ -12,3 +12,5 @@ Depends: rjags
 Collate:
   "createJagsModel.r"
   "runJagsModel.r"
+  "verifyInput.r"
+  "clusterSamples.r"
