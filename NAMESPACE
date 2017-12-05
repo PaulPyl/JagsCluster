@@ -4,6 +4,7 @@ exportMethods(
   "runJagsModel",
   "verifyInput",
   "clusterSamples",
-  "plotClusters"
+  "plotClusters",
+  "simulateData"
 )
 import(rjags)
