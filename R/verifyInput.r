@@ -16,4 +16,5 @@ verifyInput <- function(input){
   if(!all(rownames(input$Support) == rownames(input$Coverage))){
     message("Coverage and Support matrix SNVs are not in the same order, using the SNV order specified in the Support matrix!")
   }
+  return(TRUE)
 }
