@@ -36,6 +36,8 @@ clusterSamples <- function(input, Nclust = 10, nAdapt = 1000, nBurnIn = 2000, nS
     message(paste0("Input too large (", length(selectedSNVs), " variant calls), subsamping to ", maxSNVs, " for modelling."))
     selectedSNVs <- sample(x = selectedSNVs, size = maxSNVs, replace = FALSE)
     input <- lapply(input, function(m) m[selectedSNVs,,drop = FALSE])
+    message("Subsampled Input looks like this:")
+    message(str(input))
   }
   res <- runJagsModel(input, model = createJagsModel(nSamples = ncol(input$Support)), Nclust = Nclust, nAdapt = nAdapt, nBurnIn = nBurnIn, nSample = nSample, nChain = nChain)
   weights <- apply(res$cluster.weight, 1, mean)
