@@ -1,4 +1,4 @@
-plotResultSNVs <- function(clsRes){
+plotResultSNVs <- function(clsRes, mode = "point"){
   dat <- clsRes$Modelling.Data
   df <- do.call(rbind,lapply(seq(1, ncol(dat$AF)-1), function(i) do.call(rbind,lapply(seq(i+1, ncol(dat$AF)), function(j) {
     ret <- as.data.frame(dat$AF[,c(i,j)])
@@ -9,8 +9,12 @@ plotResultSNVs <- function(clsRes){
     ret
   }))))
   df$ClusterName <- dat$Cluster$ClusterName[match(df$SNVID, dat$Cluster$SNVID)]
-  ggplot(df, aes(x = AFOne, y = AFTwo, fill = ClusterName)) +
-    geom_point(shape = 21, size = 3, alpha = 0.6) + theme_bw() +
+  p <- ggplot(df, aes(x = AFOne, y = AFTwo, fill = ClusterName)) +
     facet_grid(SampleOne ~ SampleTwo) +
-    xlim(0,1) + ylim(0,1)
+    xlim(0,1) + ylim(0,1) + theme_bw()
+  if(mode == "point"){
+    p <- p + geom_point(shape = 21, size = 3, alpha = 0.6)
+  }else if(mode == "density2d"){
+    p <- p + stat_density2d(alpha = 0.6, contour = TRUE, colour = "grey70", size = 0.25, geom = "polygon")
+  }
 }

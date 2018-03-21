@@ -5,6 +5,7 @@ exportMethods(
   "verifyInput",
   "clusterSamples",
   "plotClusterWeights",
+  "plotClusters",
   "plotResultSNVs",
   "plotChains",
   "simulateData"

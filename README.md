@@ -1,153 +1,199 @@
----
-title: "Empirical Bayesian modelling for SNV clusters using rjags"
-author: "Paul Theodor Pyl"
-date: "2017-06-20"
-output: html_document
----
+Introduction
+============
 
-# Introduction
-This package provides helper function to create models for SNV clustering using empirical bayesian methods with the rjags package.
+This package provides helper function to create models for SNV
+clustering using empirical bayesian methods with the rjags package.
 
-# Installation
+Installation
+============
+
 Use devtools to pull the package from GitHub like so:
-```r
-install.packages("devtools") # If you do not have it yet
-require(devtools)
-install_github("PaulPyl/JagsCluster")
-```
-# Creating a Model
 
-A valid JAGS model can be created with the `createJagsModel` function, which takes as an input parameter the number of samples (`nSamples`) and outputs a text definition of a JAGS model for a series with `nSamples` many samples in it.
+    install.packages("devtools") # If you do not have it yet
+    require(devtools)
+    install_github("PaulPyl/JagsCluster")
 
-```r
-theModel <- createJagsModel(nSamples = 3)
-cat(theModel)
-```
+Creating a Model
+================
 
-```
-model {
-# Likelihood:
-for( i in 1 : Nsnvs ) {
-  clust[i] ~ dcat(cluster.weight[1:Nclust])
-  count.1[i] ~ dbin(snv.center.1[i], coverage.1[i])
-  snv.center.1[i] <- cluster.center.1a[clust[i]]
-  count.2[i] ~ dbin(snv.center.2[i], coverage.2[i])
-  snv.center.2[i] <- cluster.center.2a[clust[i]]
-  count.3[i] ~ dbin(snv.center.3[i], coverage.3[i])
-  snv.center.3[i] <- cluster.center.3a[clust[i]]
-}
-# Priors:
-for ( clustIdx in 1 : Nclust ) {
-  cluster.center.1[clustIdx] ~ dunif(0, 1)
-  cluster.center.2[clustIdx] ~ dunif(0, 1)
-  cluster.center.3[clustIdx] ~ dunif(0, 1)
-  delta[clustIdx] ~ dgamma(alpha1, alpha2)
-  cluster.weight[clustIdx] <- delta[clustIdx] / sum(delta[])
-}
-alpha1 ~ dbeta(shape1, shape2)
-alpha2 ~ dbeta(shape2, shape2)
-}
-```
+A valid JAGS model can be created with the `createJagsModel` function,
+which takes as an input parameter the number of samples (`nSamples`) and
+outputs a text definition of a JAGS model for a series with `nSamples`
+many samples in it.
 
-# Input Data format
+    require(JagsCluster)
 
-The input data is expected to be a list with two elements named `Support` and `Coverage`, each of those is a matrix with `n` rows and `m` columns where `n` is the number of SNVs and `m` is the number of samples. Usage of meaningful row and column names is encouraged.
+    ## Loading required package: JagsCluster
+
+    ## Loading required package: rjags
+
+    ## Loading required package: coda
+
+    ## Linked to JAGS 4.2.0
+
+    ## Loaded modules: basemod,bugs
+
+    ## Loading required package: ggplot2
+
+    ## Loading required package: reshape2
+
+    theModel <- createJagsModel(nSamples = 3)
+    cat(theModel)
+
+    ## model {
+    ## # Likelihood:
+    ## for( i in 1 : Nsnvs ) {
+    ##   clust[i] ~ dcat(cluster.weight[1:Nclust])
+    ##   count.1[i] ~ dbin(snv.center.1[i], coverage.1[i])
+    ##   snv.center.1[i] <- cluster.center.1[clust[i]]
+    ##   count.2[i] ~ dbin(snv.center.2[i], coverage.2[i])
+    ##   snv.center.2[i] <- cluster.center.2[clust[i]]
+    ##   count.3[i] ~ dbin(snv.center.3[i], coverage.3[i])
+    ##   snv.center.3[i] <- cluster.center.3[clust[i]]
+    ## }
+    ## # Priors:
+    ## for ( clustIdx in 1 : Nclust ) {
+    ##   cluster.center.1[clustIdx] ~ dunif(0, 1)
+    ##   cluster.center.2[clustIdx] ~ dunif(0, 1)
+    ##   cluster.center.3[clustIdx] ~ dunif(0, 1)
+    ##   delta[clustIdx] ~ dgamma(alpha1, alpha2)
+    ##   cluster.weight[clustIdx] <- delta[clustIdx] / sum(delta[])
+    ## }
+    ## alpha1 ~ dbeta(shape1, shape2)
+    ## alpha2 ~ dbeta(shape2, shape2)
+    ## }
+
+Input Data format
+=================
+
+The input data is expected to be a list with two elements named
+`Support` and `Coverage`, each of those is a matrix with `n` rows and
+`m` columns where `n` is the number of SNVs and `m` is the number of
+samples. Usage of meaningful row and column names is encouraged.
 
 We can simulate some data to demonstrate the modelling functionality:
 
-```
-sDat <- simulateData(nSamples = 3, nSNVs = 100, nClusters = 3, meanCoverage = c(60, 120, 180))
-lapply(sDat, head)
-```
+    sDat <- simulateData(nSamples = 3, nSNVs = 100, nClusters = 3, meanCoverage = c(60, 120, 180))
+    lapply(sDat, head)
 
-```
-$Coverage
-      sample_a sample_b sample_c
-snv_1       56      110      186
-snv_2       78      126      185
-snv_3       64      104      187
-snv_4       70      122      173
-snv_5       68      112      170
-snv_6       65      134      192
+    ## $Coverage
+    ##       sample_a sample_b sample_c
+    ## snv_1       52      126      184
+    ## snv_2       67      119      162
+    ## snv_3       59      135      191
+    ## snv_4       61      128      190
+    ## snv_5       52      114      182
+    ## snv_6       53      112      161
+    ## 
+    ## $Support
+    ##       sample_a sample_b sample_c
+    ## snv_1        9       41      117
+    ## snv_2       20      104      154
+    ## snv_3       36       98      140
+    ## snv_4       11       45      120
+    ## snv_5       25       93      169
+    ## snv_6       39       91      113
 
-$Support
-      sample_a sample_b sample_c
-snv_1       41       26      100
-snv_2       39      109      158
-snv_3       49       45      136
-snv_4       60       25       82
-snv_5       30      104      134
-snv_6       52       62      150
-```
+Modelling
+=========
 
-# Modelling
+The model is run by a call to the `clusterSamples` function, giving the
+data as input as well as a number of parameters for the clustering
+algorith. We will leave them at the default settings for now, eventhough
+that will try to fit 10 clusters and we know we simulated only 3.
 
-The model is run by a call to the `clusterSamples` function, giving the data as input as well as a number of parameters for the clustering algorith. We will leave them at the default settings for now, eventhough that will try to fit 10 clusters and we know we simulated only 3.
+    clusteringResult <- clusterSamples(sDat)
 
-```
-clusteringResult <- clusterSamples(sDat)
-```
+    ## Compiling model graph
+    ##    Resolving undeclared variables
+    ##    Allocating nodes
+    ## Graph information:
+    ##    Observed stochastic nodes: 300
+    ##    Unobserved stochastic nodes: 142
+    ##    Total graph size: 1119
+    ## 
+    ## Initializing model
 
-rjags will produce some output including a progress bar of the modelling process:
+rjags will produce some output including a progress bar of the modelling
+process.
 
-```{r}
-Compiling model graph
-   Resolving undeclared variables
-   Allocating nodes
-Graph information:
-   Observed stochastic nodes: 300
-   Unobserved stochastic nodes: 142
-   Total graph size: 1119
+Results
+=======
 
-Initializing model
+Cluster Weights and Allelic Frequencies
+---------------------------------------
 
-  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100%
-  |**************************************************| 100%
-  |**************************************************| 100%
-```
+Let's plot the cluster weights and mean allelic frequencies of the
+result:
 
-# Results
+    plotClusterWeights(clusteringResult) + scale_fill_brewer(palette = "Set3")
 
-## Cluster Weights and Allelic Frequencies
+![](README_files/figure-markdown_strict/unnamed-chunk-5-1.png)
 
-Let's plot the cluster weights and mean allelic frequencies of the result:
+In this plot we see three clusters with ~33% Weight (which makes sense
+since we simulated 3 clusters of equal size), the other clusters have
+weights close to 0.
 
-```{r}
-plotClusterWeights(clusteringResult) + scale_fill_brewer(palette = "Set3")
-```
+    plotClusters(clusteringResult, mode = "point") + scale_fill_brewer(palette = "Set3")
 
-In this plot we see three clusters with ~33% Weight (which makes sense since we simulated 3 clusters of equal size), the other clusters have weights close to 0.
+![](README_files/figure-markdown_strict/unnamed-chunk-6-1.png)
 
-![Cluster Weight Example Plot](clusterWeightPlotExample.png)
+    plotClusters(clusteringResult, mode = "density2d") + scale_fill_brewer(palette = "Set3")
 
-## SNV Cluster assignment Plot
+![](README_files/figure-markdown_strict/unnamed-chunk-7-1.png)
 
-Another way to look at this is to plot the SNVs annotated with the clusters they were assigned to:
+The density version of this plot is not very helpful in this case of
+simulate data, which are not very noisy at all, this can be more
+infomrative if your clusters show a wide spread or strangely shaped
+clouds, to determine the underlying density.
 
-```{r}
-plotResultSNVs(clusteringResult) + scale_fill_brewer(palette = "Set3")
-```
+SNV Cluster assignment Plot
+---------------------------
 
-Here we see our three clusters of simulated SNVs and their respective allelic frequencies in the three samples.
+Another way to look at this is to plot the SNVs annotated with the
+clusters they were assigned to:
 
-![Cluster SNV Example Plot](snvPlotExample.png)
+    plotResultSNVs(clusteringResult, mode = "point") + scale_fill_brewer(palette = "Set3")
 
-## JAGS model chain plots
+![](README_files/figure-markdown_strict/unnamed-chunk-8-1.png)
 
-A more in-depth look can be had by tracing the actual allele frequencies of the clusters as they were sampled from the mixture model. Here we plot only clusters which contain at least 1% of SNVs in the final estimate.
+It can be useful to look at this as a density plot, in case too many
+points overlap and it is not easy to make out the shape and local
+density of the clusters.
 
-```{r}
-plotChains(clusteringResult, minWeight = 0.01) + ylim(0,1) + scale_colour_brewer(palette = "Set3")
-```
+    plotResultSNVs(clusteringResult, mode = "density2d") + scale_fill_brewer(palette = "Set3")
 
-![Cluster Chain Example Plot with minimum Weight](chainPlotExample.1.perc.png)
+![](README_files/figure-markdown_strict/unnamed-chunk-9-1.png)
 
-We see that the model has converged very well and in all samples the clusters are very stable in their respective estimated alelle frequencies. Since this is simulated data we did expect such behaviour and in real-world examples the clusterin can be much more unstable. Typically it is advisable to filter the input data strictly and try to focus on SNVs where there is a lot of evidence, i.e. where the coverage is high, so that the estimated AFs can be very precise.
+Here we see our three clusters of simulated SNVs and their respective
+allelic frequencies in the three samples.
 
-If we allow for all clusters to be plotted we see that the clusters with low weight do not converge at all and are all over the place, this is not a problem however, since when the clusters contain no data the prior probability is never updated and so they sample from a uniform distribution between `0` and `1`, which is expected.
+JAGS model chain plots
+----------------------
 
-```{r}
-plotChains(clusteringResult, minWeight = 0) + ylim(0,1) + scale_colour_brewer(palette = "Set3")
-```
+A more in-depth look can be had by tracing the actual allele frequencies
+of the clusters as they were sampled from the mixture model. Here we
+plot only clusters which contain at least 1% of SNVs in the final
+estimate.
 
-![Cluster Chain Example Plot without minimum Weight](chainPlotExample.0.perc.png)
+    plotChains(clusteringResult, minWeight = 0.01) + ylim(0,1) + scale_colour_brewer(palette = "Set3")
+
+![](README_files/figure-markdown_strict/unnamed-chunk-10-1.png)
+
+We see that the model has converged very well and in all samples the
+clusters are very stable in their respective estimated alelle
+frequencies. Since this is simulated data we did expect such behaviour
+and in real-world examples the clusterin can be much more unstable.
+Typically it is advisable to filter the input data strictly and try to
+focus on SNVs where there is a lot of evidence, i.e. where the coverage
+is high, so that the estimated AFs can be very precise.
+
+If we allow for all clusters to be plotted we see that the clusters with
+low weight do not converge at all and are all over the place, this is
+not a problem however, since when the clusters contain no data the prior
+probability is never updated and so they sample from a uniform
+distribution between `0` and `1`, which is expected.
+
+    plotChains(clusteringResult, minWeight = 0) + ylim(0,1) + scale_colour_brewer(palette = "Set3")
+
+![](README_files/figure-markdown_strict/unnamed-chunk-11-1.png)
