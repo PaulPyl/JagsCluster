@@ -66,23 +66,37 @@ plotClusters(clusteringResult, mode = "point") + scale_fill_brewer(palette = "Se
 plotClusters(clusteringResult, mode = "density2d") + scale_fill_brewer(palette = "Set3")
 ```
 
-The density version of this plot is not very helpful in this case of simulate data, which are not very noisy at all, this can be more infomrative if your clusters show a wide spread or strangely shaped clouds, to determine the underlying density.
+The density version of this plot is not very helpful in this case of simulated data, which are not very noisy at all, this can be more informative if your clusters show a wide spread or strangely shaped clouds, to determine the underlying density. If the coverage is lower the data becomes more noisy and if the number of SNVs is lower the clusters will also be less well-defined, an example is shown below:
+
+```{r, fig.width=8, fig.height=6}
+sDatNoisy <- simulateData(nSamples = 3, nSNVs = 40, nClusters = 3, meanCoverage = c(20, 30, 40))
+clusteringResultNoisy <- clusterSamples(sDatNoisy)
+cp <- plotClusters(clusteringResultNoisy, mode = "density2d") + scale_fill_brewer(palette = "Set3")
+cp
+```
 
 ## SNV Cluster assignment Plot
 
 Another way to look at this is to plot the SNVs annotated with the clusters they were assigned to:
 
-```{r, fig.width=12, fig.height=12}
-plotResultSNVs(clusteringResult, mode = "point") + scale_fill_brewer(palette = "Set3")
+```{r, fig.width=8, fig.height=8}
+sp <- plotResultSNVs(clusteringResult, mode = "point") + scale_fill_brewer(palette = "Set3")
+sp
 ```
 
 It can be useful to look at this as a density plot, in case too many points overlap and it is not easy to make out the shape and local density of the clusters.
 
-```{r, fig.width=12, fig.height=12}
-plotResultSNVs(clusteringResult, mode = "density2d") + scale_fill_brewer(palette = "Set3")
+```{r, fig.width=8, fig.height=8}
+sp <- plotResultSNVs(clusteringResult, mode = "density2d") + scale_fill_brewer(palette = "Set3")
+sp
 ```
 
 Here we see our three clusters of simulated SNVs and their respective allelic frequencies in the three samples.
+
+Sometimes it can be interesting to add marginal distribution densities to those plots as well:
+```{r, fig.width=8, fig.height=8}
+addMarginals(sp, scale_fill_brewer(palette = "Set3"))
+```
 
 ## JAGS model chain plots
 

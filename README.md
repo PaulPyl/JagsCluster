@@ -37,6 +37,15 @@ many samples in it.
 
     ## Loading required package: reshape2
 
+    ## Loading required package: cowplot
+
+    ## 
+    ## Attaching package: 'cowplot'
+
+    ## The following object is masked from 'package:ggplot2':
+    ## 
+    ##     ggsave
+
     theModel <- createJagsModel(nSamples = 3)
     cat(theModel)
 
@@ -78,21 +87,21 @@ We can simulate some data to demonstrate the modelling functionality:
 
     ## $Coverage
     ##       sample_a sample_b sample_c
-    ## snv_1       52      126      184
-    ## snv_2       67      119      162
-    ## snv_3       59      135      191
-    ## snv_4       61      128      190
-    ## snv_5       52      114      182
-    ## snv_6       53      112      161
+    ## snv_1       63       98      173
+    ## snv_2       55      116      189
+    ## snv_3       53      113      187
+    ## snv_4       61      118      210
+    ## snv_5       61      115      168
+    ## snv_6       57      124      142
     ## 
     ## $Support
     ##       sample_a sample_b sample_c
-    ## snv_1        9       41      117
-    ## snv_2       20      104      154
-    ## snv_3       36       98      140
-    ## snv_4       11       45      120
-    ## snv_5       25       93      169
-    ## snv_6       39       91      113
+    ## snv_1       20       79      129
+    ## snv_2       38        6       56
+    ## snv_3       49       57       49
+    ## snv_4       11       94      146
+    ## snv_5       39        9       50
+    ## snv_6       57       68       28
 
 Modelling
 =========
@@ -143,9 +152,29 @@ weights close to 0.
 ![](README_files/figure-markdown_strict/unnamed-chunk-7-1.png)
 
 The density version of this plot is not very helpful in this case of
-simulate data, which are not very noisy at all, this can be more
-infomrative if your clusters show a wide spread or strangely shaped
-clouds, to determine the underlying density.
+simulated data, which are not very noisy at all, this can be more
+informative if your clusters show a wide spread or strangely shaped
+clouds, to determine the underlying density. If the coverage is lower
+the data becomes more noisy and if the number of SNVs is lower the
+clusters will also be less well-defined, an example is shown below:
+
+    sDatNoisy <- simulateData(nSamples = 3, nSNVs = 40, nClusters = 3, meanCoverage = c(20, 30, 40))
+    clusteringResultNoisy <- clusterSamples(sDatNoisy)
+
+    ## Compiling model graph
+    ##    Resolving undeclared variables
+    ##    Allocating nodes
+    ## Graph information:
+    ##    Observed stochastic nodes: 120
+    ##    Unobserved stochastic nodes: 82
+    ##    Total graph size: 519
+    ## 
+    ## Initializing model
+
+    cp <- plotClusters(clusteringResultNoisy, mode = "density2d") + scale_fill_brewer(palette = "Set3")
+    cp
+
+![](README_files/figure-markdown_strict/unnamed-chunk-8-1.png)
 
 SNV Cluster assignment Plot
 ---------------------------
@@ -153,20 +182,32 @@ SNV Cluster assignment Plot
 Another way to look at this is to plot the SNVs annotated with the
 clusters they were assigned to:
 
-    plotResultSNVs(clusteringResult, mode = "point") + scale_fill_brewer(palette = "Set3")
+    sp <- plotResultSNVs(clusteringResult, mode = "point") + scale_fill_brewer(palette = "Set3")
+    sp
 
-![](README_files/figure-markdown_strict/unnamed-chunk-8-1.png)
+![](README_files/figure-markdown_strict/unnamed-chunk-9-1.png)
 
 It can be useful to look at this as a density plot, in case too many
 points overlap and it is not easy to make out the shape and local
 density of the clusters.
 
-    plotResultSNVs(clusteringResult, mode = "density2d") + scale_fill_brewer(palette = "Set3")
+    sp <- plotResultSNVs(clusteringResult, mode = "density2d") + scale_fill_brewer(palette = "Set3")
+    sp
 
-![](README_files/figure-markdown_strict/unnamed-chunk-9-1.png)
+![](README_files/figure-markdown_strict/unnamed-chunk-10-1.png)
 
 Here we see our three clusters of simulated SNVs and their respective
 allelic frequencies in the three samples.
+
+Sometimes it can be interesting to add marginal distribution densities
+to those plots as well:
+
+    addMarginals(sp, scale_fill_brewer(palette = "Set3"))
+
+    ## Scale for 'fill' is already present. Adding another scale for 'fill',
+    ## which will replace the existing scale.
+
+![](README_files/figure-markdown_strict/unnamed-chunk-11-1.png)
 
 JAGS model chain plots
 ----------------------
@@ -178,7 +219,7 @@ estimate.
 
     plotChains(clusteringResult, minWeight = 0.01) + ylim(0,1) + scale_colour_brewer(palette = "Set3")
 
-![](README_files/figure-markdown_strict/unnamed-chunk-10-1.png)
+![](README_files/figure-markdown_strict/unnamed-chunk-12-1.png)
 
 We see that the model has converged very well and in all samples the
 clusters are very stable in their respective estimated alelle
@@ -196,4 +237,4 @@ distribution between `0` and `1`, which is expected.
 
     plotChains(clusteringResult, minWeight = 0) + ylim(0,1) + scale_colour_brewer(palette = "Set3")
 
-![](README_files/figure-markdown_strict/unnamed-chunk-11-1.png)
+![](README_files/figure-markdown_strict/unnamed-chunk-13-1.png)

@@ -8,6 +8,7 @@ exportMethods(
   "plotClusters",
   "plotResultSNVs",
   "plotChains",
-  "simulateData"
+  "simulateData",
+  "addMarginals"
 )
 import(rjags)
