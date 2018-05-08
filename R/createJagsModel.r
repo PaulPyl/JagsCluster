@@ -25,7 +25,7 @@ for ( clustIdx in 1 : Nclust ) {"
   ret <- c(
     ret,
     "alpha1 ~ dbeta(shape1, shape2)",
-    "alpha2 ~ dbeta(shape2, shape2)",
+    "alpha2 ~ dbeta(shape1, shape2)",
     "}"
   )
   paste(ret, collapse = "\n")

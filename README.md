@@ -69,7 +69,7 @@ many samples in it.
     ##   cluster.weight[clustIdx] <- delta[clustIdx] / sum(delta[])
     ## }
     ## alpha1 ~ dbeta(shape1, shape2)
-    ## alpha2 ~ dbeta(shape2, shape2)
+    ## alpha2 ~ dbeta(shape1, shape2)
     ## }
 
 Input Data format
@@ -87,21 +87,21 @@ We can simulate some data to demonstrate the modelling functionality:
 
     ## $Coverage
     ##       sample_a sample_b sample_c
-    ## snv_1       63       98      173
-    ## snv_2       55      116      189
-    ## snv_3       53      113      187
-    ## snv_4       61      118      210
-    ## snv_5       61      115      168
-    ## snv_6       57      124      142
+    ## snv_1       59      114      188
+    ## snv_2       61      114      175
+    ## snv_3       44      125      162
+    ## snv_4       47      123      193
+    ## snv_5       62      136      185
+    ## snv_6       48      124      181
     ## 
     ## $Support
     ##       sample_a sample_b sample_c
-    ## snv_1       20       79      129
-    ## snv_2       38        6       56
-    ## snv_3       49       57       49
-    ## snv_4       11       94      146
-    ## snv_5       39        9       50
-    ## snv_6       57       68       28
+    ## snv_1       46       64      145
+    ## snv_2       43       55       77
+    ## snv_3       37       42       95
+    ## snv_4       30       64      149
+    ## snv_5       48       57       80
+    ## snv_6       39       55      102
 
 Modelling
 =========

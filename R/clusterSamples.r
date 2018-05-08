@@ -1,4 +1,4 @@
-clusterSamples <- function(input, Nclust = 10, nAdapt = 1000, nBurnIn = 2000, nSample = 500, nChain = 1, maxSNVs = 1000, minAF = 0.1, varCF = Inf, minCov = 10, minWeight = 0){
+clusterSamples <- function(input, Nclust = 10, nAdapt = 1000, nBurnIn = 2000, nSample = 500, nChain = 1, maxSNVs = 1000, minAF = 0.1, varCF = Inf, minCov = 10, minWeight = 0, shape1 = 1, shape2 = 1000){
   verifyInput(input) # check if input is valid
   input$AF <- input$Support / input$Coverage
   input$AF[!is.finite(input$AF)] <- 0
@@ -39,7 +39,7 @@ clusterSamples <- function(input, Nclust = 10, nAdapt = 1000, nBurnIn = 2000, nS
     message("Subsampled Input looks like this:")
     message(str(input))
   }
-  res <- runJagsModel(input, model = createJagsModel(nSamples = ncol(input$Support)), Nclust = Nclust, nAdapt = nAdapt, nBurnIn = nBurnIn, nSample = nSample, nChain = nChain)
+  res <- runJagsModel(input, model = createJagsModel(nSamples = ncol(input$Support)), shape1 = shape1, shape2 = shape2, Nclust = Nclust, nAdapt = nAdapt, nBurnIn = nBurnIn, nSample = nSample, nChain = nChain)
   weights <- apply(res$cluster.weight, 1, mean)
   clusters <- do.call(rbind,lapply(seq(ncol(input$Support)), function(i){
     data.frame(
