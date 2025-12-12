@@ -21,4 +21,5 @@ plotResultSNVs <- function(clsRes, mode = "point"){
   }else{
     p <- p + facet_grid(SampleOne ~ SampleTwo)
   }
+  return(p)
 }

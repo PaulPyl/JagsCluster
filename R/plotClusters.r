@@ -26,4 +26,5 @@ plotClusters <- function(clsRes, mode = "point",  minWeight = 0.01){
   }else if(mode == "density2d"){
     p <- p + stat_density2d(alpha = 0.6, contour = TRUE, colour = "grey70", size = 0.25, geom = "polygon")
   }
+  return(p)
 }
